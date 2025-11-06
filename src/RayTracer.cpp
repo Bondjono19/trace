@@ -8,6 +8,7 @@
 #include "scene/ray.h"
 #include "fileio/read.h"
 #include "fileio/parse.h"
+#include <cmath>
 
 // Trace a top-level ray through normalized window coordinates (x,y)
 // through the projection plane, and out into the scene.  All we do is
@@ -24,7 +25,11 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
 	const vec3f& thresh, int depth )
-{
+{	
+	if (depth > 5) {
+		return vec3f(0.0, 0.0, 0.0);
+	}
+
 	isect i;
 
 	if( scene->intersect( r, i ) ) {
@@ -40,10 +45,39 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 
-
+		//get material from intersection
 		const Material& m = i.getMaterial();
-		return m.shade(scene, r, i);
-	
+		
+		//get shade from intersection
+		vec3f I = m.shade(scene, r, i);
+
+		//fire recursive ray for reflection
+		vec3f direction_reflect = reflectDirection(r, i);
+		vec3f position_reflect = r.at(i.t) + direction_reflect * RAY_EPSILON;
+		ray r_reflect(position_reflect, direction_reflect);
+
+		I += prod(m.kr,traceRay(scene, r_reflect, thresh, depth +1));
+
+		//fire recursive ray for refraction
+		vec3f diretion_refract = refractDirection(r,i,m);
+
+		if (diretion_refract != vec3f(0, 0, 0)) {
+
+			vec3f position_refract = r.at(i.t) + diretion_refract * RAY_EPSILON;
+			ray r_refract(position_refract, diretion_refract);
+			
+			bool entering = r.getDirection().dot(i.N) < 0;
+
+			if (entering) {
+				r_refract.setMedium(&m);
+			}
+			else {
+				r_refract.setMedium(nullptr);
+			}
+			I += prod(m.kt, traceRay(scene, r_refract, thresh, depth + 1));
+		}
+		//return coloring
+		return I;
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
@@ -51,6 +85,39 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 
 		return vec3f( 0.0, 0.0, 0.0 );
 	}
+}
+
+vec3f RayTracer::reflectDirection(ray r, isect i) {
+	vec3f direction = r.getDirection().normalize();
+	vec3f normal = i.N.normalize();
+	return (direction - 2 * direction.dot(normal) * normal).normalize();
+}
+
+vec3f RayTracer::refractDirection(ray r, isect i,Material m) {
+	vec3f direction = r.getDirection().normalize();
+	vec3f normal = i.N.normalize();
+	float n_i = (r.getMedium() ? r.getMedium()->index : 1.0f);
+	float n_t = m.index;
+	bool entering =  direction.dot(normal) < 0;
+	if (!entering) {
+		std::swap(n_i, n_t);
+		normal = -normal;
+	}
+
+	float eta = n_i / n_t;
+
+	float cos_theta_i = -direction.dot(normal);
+	float ssra = eta * eta * (1 - cos_theta_i * cos_theta_i);
+
+	if (ssra > 1) {
+		return vec3f(0, 0, 0);
+	}
+	float cos_theta_t = sqrt(1.0f - ssra);
+
+	vec3f refracted_direction = eta * direction + (eta * cos_theta_i - cos_theta_t) * normal;
+
+	return refracted_direction.normalize();
+
 }
 
 RayTracer::RayTracer()

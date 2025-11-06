@@ -27,6 +27,8 @@ public:
 	bool sceneLoaded();
 
 private:
+	vec3f reflectDirection(ray incoming, isect i);
+	vec3f refractDirection(ray incomung, isect i,Material m);
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
 	int bufferSize;

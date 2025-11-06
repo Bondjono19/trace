@@ -9,6 +9,7 @@
 
 #include "../vecmath/vecmath.h"
 #include "material.h"
+#include <stack>
 
 class SceneObject;
 
@@ -18,23 +19,33 @@ class SceneObject;
 class ray {
 public:
 	ray( const vec3f& pp, const vec3f& dd )
-		: p( pp ), d( dd ) {}
+		: p( pp ), d( dd ), medium(nullptr) {}
 	ray( const ray& other ) 
-		: p( other.p ), d( other.d ) {}
+		: p( other.p ), d( other.d ), medium(other.medium) {}
 	~ray() {}
-
-	ray& operator =( const ray& other ) 
-	{ p = other.p; d = other.d; return *this; }
+    ray& operator =(const ray& other)
+    {
+        if (this != &other) {
+            p = other.p; d = other.d; medium = other.medium;
+        }
+        return *this;
+    }
 
 	vec3f at( double t ) const
 	{ return p + (t*d); }
 
 	vec3f getPosition() const { return p; }
 	vec3f getDirection() const { return d; }
-
+    stack<Material*> getStack() const { return mediumStack; }
+    void setStack( stack<Material*> stackIn) { mediumStack = stackIn; }
+    const Material* getMedium() const { return medium; }
+    void setMedium(const Material* m) { medium = m; }
 protected:
 	vec3f p;
 	vec3f d;
+private:
+    stack<Material*> mediumStack;
+    const Material* medium;
 };
 
 // The description of an intersection point.
