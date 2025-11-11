@@ -92,13 +92,41 @@ void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 	((TraceUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 }
 
+void TraceUI::cb_attenConst(Fl_Widget* o, void* v) {
+	((TraceUI*)(o->user_data()))->attenConst = float(((Fl_Slider*)o)->value());
+}
+
+void TraceUI::cb_attenLinear(Fl_Widget* o, void* v) {
+	((TraceUI*)(o->user_data()))->attenLinear = float(((Fl_Slider*)o)->value());
+}
+
+void TraceUI::cb_attenQuadric(Fl_Widget* o, void* v) {
+	((TraceUI*)(o->user_data()))->attenQuadric = float(((Fl_Slider*)o)->value());
+}
+
+void TraceUI::cb_ambientLight(Fl_Widget* o, void* v) {
+	((TraceUI*)(o->user_data()))->ambientLight = float(((Fl_Slider*)o)->value());
+}
+
+void TraceUI::cb_threshold(Fl_Widget* o, void* v) {
+	((TraceUI*)(o->user_data()))->threshold = float(((Fl_Slider*)o)->value());
+}
+
 void TraceUI::cb_render(Fl_Widget* o, void* v)
 {
 	char buffer[256];
 
+
 	TraceUI* pUI=((TraceUI*)(o->user_data()));
 	
+	
 	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->getSettings()->setAmbientLight(pUI->getAmbientLight());
+		pUI->raytracer->getScene()->getSettings()->setAttenConst(pUI->getAttenConst());
+		pUI->raytracer->getScene()->getSettings()->setAttenLinear(pUI->getAttenLinear());
+		pUI->raytracer->getScene()->getSettings()->setAttenQuadric(pUI->getAttenQuadric());
+		pUI->raytracer->getScene()->getSettings()->setThreshold(pUI->getThreshold());
+		pUI->raytracer->getScene()->getSettings()->setDepth(pUI->getDepth());
 		int width=pUI->getSize();
 		int	height = (int)(width / pUI->raytracer->aspectRatio() + 0.5);
 		pUI->m_traceGlWindow->resizeWindow( width, height );
@@ -195,6 +223,27 @@ int TraceUI::getDepth()
 	return m_nDepth;
 }
 
+
+float TraceUI::getAttenConst() {
+	return attenConst;
+}
+
+float TraceUI::getAttenLinear() {
+	return attenLinear;
+}
+
+float TraceUI::getAttenQuadric() {
+	return attenQuadric;
+}
+
+float TraceUI::getAmbientLight() {
+	return ambientLight;
+}
+
+float TraceUI::getThreshold() {
+	return threshold;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -214,7 +263,12 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_mainWindow = new Fl_Window(100, 40, 320, 100, "Ray <Not Loaded>");
+	attenConst = 0.25;
+	attenLinear = 0.25;
+	attenQuadric = 0.25;
+	ambientLight = 0.25;
+	threshold = 0.25;
+	m_mainWindow = new Fl_Window(100, 40, 400, 320, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
@@ -245,6 +299,71 @@ TraceUI::TraceUI() {
 		m_sizeSlider->value(m_nSize);
 		m_sizeSlider->align(FL_ALIGN_RIGHT);
 		m_sizeSlider->callback(cb_sizeSlides);
+
+		// install slider attenuation constant
+		m_attenConstSlider = new Fl_Value_Slider(10, 80, 180, 20, "Attenuation, Constant");
+		m_attenConstSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenConstSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenConstSlider->labelfont(FL_COURIER);
+		m_attenConstSlider->labelsize(12);
+		m_attenConstSlider->minimum(0);
+		m_attenConstSlider->maximum(1);
+		m_attenConstSlider->step(0.01);
+		m_attenConstSlider->value(attenConst);
+		m_attenConstSlider->align(FL_ALIGN_RIGHT);
+		m_attenConstSlider->callback(cb_attenConst);
+
+		// install slider attenuation linear
+		m_attenLinearSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
+		m_attenLinearSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenLinearSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenLinearSlider->labelfont(FL_COURIER);
+		m_attenLinearSlider->labelsize(12);
+		m_attenLinearSlider->minimum(0);
+		m_attenLinearSlider->maximum(1);
+		m_attenLinearSlider->step(0.01);
+		m_attenLinearSlider->value(attenLinear);
+		m_attenLinearSlider->align(FL_ALIGN_RIGHT);
+		m_attenLinearSlider->callback(cb_attenLinear);
+
+		// install slider attenuation quadric
+		m_attenQuadricSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadric");
+		m_attenQuadricSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenQuadricSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenQuadricSlider->labelfont(FL_COURIER);
+		m_attenQuadricSlider->labelsize(12);
+		m_attenQuadricSlider->minimum(0);
+		m_attenQuadricSlider->maximum(1);
+		m_attenQuadricSlider->step(0.01);
+		m_attenQuadricSlider->value(attenQuadric);
+		m_attenQuadricSlider->align(FL_ALIGN_RIGHT);
+		m_attenQuadricSlider->callback(cb_attenQuadric);
+
+		// install slider ambient light
+		m_ambientLightSlider = new Fl_Value_Slider(10, 155, 180, 20, "Ambient Light");
+		m_ambientLightSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_ambientLightSlider->type(FL_HOR_NICE_SLIDER);
+		m_ambientLightSlider->labelfont(FL_COURIER);
+		m_ambientLightSlider->labelsize(12);
+		m_ambientLightSlider->minimum(0);
+		m_ambientLightSlider->maximum(1);
+		m_ambientLightSlider->step(0.01);
+		m_ambientLightSlider->value(ambientLight);
+		m_ambientLightSlider->align(FL_ALIGN_RIGHT);
+		m_ambientLightSlider->callback(cb_ambientLight);
+
+		// install slider threshold
+		m_thresholdSlider = new Fl_Value_Slider(10, 180, 180, 20, "Threshold");
+		m_thresholdSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_thresholdSlider->type(FL_HOR_NICE_SLIDER);
+		m_thresholdSlider->labelfont(FL_COURIER);
+		m_thresholdSlider->labelsize(12);
+		m_thresholdSlider->minimum(0);
+		m_thresholdSlider->maximum(1);
+		m_thresholdSlider->step(0.01);
+		m_thresholdSlider->value(threshold);
+		m_thresholdSlider->align(FL_ALIGN_RIGHT);
+		m_thresholdSlider->callback(cb_threshold);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

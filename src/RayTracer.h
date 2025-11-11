@@ -26,6 +26,10 @@ public:
 
 	bool sceneLoaded();
 
+	Scene* getScene() {
+		return scene;
+	}
+
 private:
 	vec3f reflectDirection(ray incoming, isect i);
 	vec3f refractDirection(ray incomung, isect i,Material m);

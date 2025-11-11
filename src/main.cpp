@@ -199,6 +199,7 @@ int main(int argc, char **argv) {
 
 		traceUI->setRayTracer(theRayTracer);
 
+
 		Fl::visual(FL_DOUBLE|FL_INDEX);
 
 		traceUI->show();
