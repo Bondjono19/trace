@@ -11,6 +11,13 @@ double DirectionalLight::distanceAttenuation( const vec3f& P ) const
 
 vec3f DirectionalLight::shadowAttenuation( const vec3f& P ) const
 {
+	vec3f dir = -this->orientation.normalize();
+	isect i;
+	ray ray(P, dir);
+	bool hit = scene->intersect(ray,i);
+	if (hit && i.t > 0) {
+		return vec3f(0, 0, 0);
+	}
     // YOUR CODE HERE:
     // You should implement shadow-handling code here.
     return vec3f(1,1,1);

@@ -22,7 +22,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	vec3f position = r.at(i.t);
 	vec3f normal = i.N;
 	vec3f I = material.ke + material.ka * scene->getSettings()->getAmbientLight();
-	std::cout << "amb light: " << scene->getSettings()->getAmbientLight() << std::endl;
+	//std::cout << "amb light: " << scene->getSettings()->getAmbientLight() << std::endl;
 	
 	for (list<Light*>::const_iterator ite = scene->beginLights(); ite != scene->endLights(); ++ite) {
 		Light* light = *ite;
@@ -33,6 +33,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		vec3f V = -r.getDirection().normalize();
 		vec3f diffuse = prod(material.kd,light->getColor(position)) * max(0.0, L.dot(N));
 		vec3f spec = prod(material.ks,light->getColor(position)) * pow(max(0.0, R.dot(V)), material.shininess);
+		//std::cout << "ks: " << material.ks[0] << ", " << material.ks[1] << ", " << material.ks[2] << std::endl;
 		I += prod(attenuation,(diffuse + spec));
 	}
 

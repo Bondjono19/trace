@@ -55,6 +55,11 @@ bool Box::intersectLocal( const ray& r, isect& i ) const
 				normal = (t1z > t2z) ? vec3f(0, 0, -1) : vec3f(0, 0, 1);
 			}
 		}
+
+		if (thit < RAY_EPSILON) {
+			return false;
+		}
+
 		i.setT(thit);
 		i.setN(normal);
 		i.obj = this;
