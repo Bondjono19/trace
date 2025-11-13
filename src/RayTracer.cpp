@@ -26,9 +26,10 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
 	const vec3f& thresh, int depth )
 {	
-	if (depth > 5) {
+	if (depth > scene->getSettings()->getDepth()) {
 		return vec3f(0.0, 0.0, 0.0);
 	}
+
 
 	isect i;
 
@@ -55,9 +56,10 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		vec3f direction_reflect = reflectDirection(r, i);
 		vec3f position_reflect = r.at(i.t) + direction_reflect * RAY_EPSILON;
 		ray r_reflect(position_reflect, direction_reflect);
-
-		I += prod(m.kr,traceRay(scene, r_reflect, thresh, depth +1));
-
+		vec3f newThreshReflect = prod(thresh, m.kr);
+		if (newThreshReflect.getMaxVal() > scene->getSettings()->getThreshold()) {
+			I += prod(m.kr, traceRay(scene, r_reflect, newThreshReflect, depth + 1));
+		}
 		//fire recursive ray for refraction
 		vec3f diretion_refract = refractDirection(r,i,m);
 
@@ -74,7 +76,10 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			else {
 				r_refract.setMedium(nullptr);
 			}
-			I += prod(m.kt, traceRay(scene, r_refract, thresh, depth + 1));
+			vec3f newThreshRefract = prod(thresh, m.kt);
+			if (newThreshRefract.getMaxVal() > scene->getSettings()->getThreshold()) {
+				I += prod(m.kt, traceRay(scene, r_refract, newThreshRefract, depth + 1));
+			}
 		}
 		//return coloring
 		return I;

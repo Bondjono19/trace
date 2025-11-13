@@ -21,7 +21,8 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	Material material = i.getMaterial();
 	vec3f position = r.at(i.t);
 	vec3f normal = i.N;
-	vec3f I = material.ke + material.ka * 0.5f; //cant find global scene ambient light, so multiplied by 0.5f for now
+	vec3f I = material.ke + material.ka * scene->getSettings()->getAmbientLight();
+	std::cout << "amb light: " << scene->getSettings()->getAmbientLight() << std::endl;
 	
 	for (list<Light*>::const_iterator ite = scene->beginLights(); ite != scene->endLights(); ++ite) {
 		Light* light = *ite;

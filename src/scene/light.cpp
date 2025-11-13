@@ -36,7 +36,11 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 	// of the light based on the distance between the source and the 
 	// point P.  For now, I assume no attenuation and just return 1.0
 
-	return 1.0/(distance*distance); //missing user coefficients and such
+	float attenConst = scene->getSettings()->getAttenConst();
+	float attenLinear = scene->getSettings()->getAttenLinear();
+	float attenQuadric = scene->getSettings()->getAttenQuadric();
+	std::cout << "attenConst, attenLinear, attenQuadric: " << attenConst << " | " << attenLinear << " | " << attenQuadric << std::endl;
+	return 1.0/(attenConst + attenLinear*distance + attenQuadric*distance*distance);
 }
 
 vec3f PointLight::getColor( const vec3f& P ) const

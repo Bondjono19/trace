@@ -28,6 +28,12 @@ public:
 
 	Fl_Slider*			m_sizeSlider;
 	Fl_Slider*			m_depthSlider;
+	Fl_Slider*			m_attenConstSlider;
+	Fl_Slider*			m_attenLinearSlider;
+	Fl_Slider*			m_attenQuadricSlider;
+	Fl_Slider*			m_ambientLightSlider;
+	Fl_Slider*			m_thresholdSlider;
+
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
@@ -41,12 +47,27 @@ public:
 
 	int			getSize();
 	int			getDepth();
+	float		getAttenConst();
+	float		getAttenLinear();
+	float		getAttenQuadric();
+	float		getAmbientLight();
+	float		getThreshold();
 
+	void setUserSettings(UserSettings* val) {
+		settings = val;
+	}
 private:
 	RayTracer*	raytracer;
 
 	int			m_nSize;
 	int			m_nDepth;
+	float attenConst;
+	float attenQuadric;
+	float attenLinear;
+	float ambientLight;
+	float threshold;
+
+	UserSettings* settings;
 
 // static class members
 	static Fl_Menu_Item menuitems[];
@@ -62,6 +83,12 @@ private:
 
 	static void cb_sizeSlides(Fl_Widget* o, void* v);
 	static void cb_depthSlides(Fl_Widget* o, void* v);
+	static void cb_attenConst(Fl_Widget* o, void* v);
+	static void cb_attenLinear(Fl_Widget* o, void* v);
+	static void cb_attenQuadric(Fl_Widget* o, void* v);
+	static void cb_ambientLight(Fl_Widget* o, void* v);
+	static void cb_threshold(Fl_Widget* o, void* v);
+
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

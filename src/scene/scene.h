@@ -19,6 +19,7 @@ using namespace std;
 
 class Light;
 class Scene;
+class UserSettings;
 
 class SceneElement
 {
@@ -238,6 +239,76 @@ protected:
 	Material *material;
 };
 
+class UserSettings
+{
+public:
+
+	UserSettings() {
+		ambientLight = 0.25;
+		depth = 0;
+		attenConst = 0.25;
+		attenQuadric = 0.25;
+		attenLinear = 0.25;
+		threshold = 0.25;
+	}
+
+	float getAmbientLight() {
+		return ambientLight;
+	}
+
+	float getDepth() {
+		return depth;
+	}
+
+	float getThreshold() {
+		return threshold;
+	}
+
+	float getAttenConst() {
+		return attenConst;
+	}
+
+	float getAttenQuadric() {
+		return attenQuadric;
+	}
+
+	float getAttenLinear() {
+		return attenLinear;
+	}
+
+	void setDepth(float val) {
+		depth = val;
+	}
+
+	void setAmbientLight(float val) {
+		ambientLight = val;
+	}
+
+	void setAttenQuadric(float val) {
+		attenQuadric = val;
+	}
+
+
+	void setAttenLinear(float val) {
+		attenLinear = val;
+	}
+
+	void setAttenConst(float val) {
+		attenConst = val;
+	}
+
+	void setThreshold(float val) {
+		threshold = val;
+	}
+private:
+	float ambientLight;
+	float depth;
+	float attenConst;
+	float attenLinear;
+	float attenQuadric;
+	float threshold;
+};
+
 class Scene
 {
 public:
@@ -270,7 +341,10 @@ public:
         
 	Camera *getCamera() { return &camera; }
 
-	
+	UserSettings* getSettings() {
+		return &settings;
+	}
+
 
 private:
     list<Geometry*> objects;
@@ -278,6 +352,7 @@ private:
 	list<Geometry*> boundedobjects;
     list<Light*> lights;
     Camera camera;
+	UserSettings settings;
 	
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()

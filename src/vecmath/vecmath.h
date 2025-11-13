@@ -99,6 +99,10 @@ public:
 
 	bool iszero() const { return ( (n[0]==0 && n[1]==0 && n[2]==0) ? true : false); };
 
+	double getMaxVal() const {
+		return max(n[0],max(n[1], n[2]));
+	}
+
 public:
 	double n[3];
 };
