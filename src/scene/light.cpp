@@ -46,7 +46,6 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 	float attenConst = scene->getSettings()->getAttenConst();
 	float attenLinear = scene->getSettings()->getAttenLinear();
 	float attenQuadric = scene->getSettings()->getAttenQuadric();
-	std::cout << "attenConst, attenLinear, attenQuadric: " << attenConst << " | " << attenLinear << " | " << attenQuadric << std::endl;
 	return 1.0/(attenConst + attenLinear*distance + attenQuadric*distance*distance);
 }
 
